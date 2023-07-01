@@ -3,6 +3,7 @@ import config
 import database as db
 import pymongo
 import statistics
+import numpy
 
 
 def get_history_liquidations_data(period, symbol): #get liquidation data history from coinglass API  

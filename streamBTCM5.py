@@ -10,7 +10,7 @@ collection_name = dbname['BTCM5']
 
 with collection_name.watch() as stream:
     for change in stream:
-        print(change)
+        #print(change)
         if change['operationType'] == 'update':
             document = collection_name.find_one({'_id': change['documentKey']['_id']})
             if 'isBuyThreshold' in change['updateDescription']['updatedFields']:
