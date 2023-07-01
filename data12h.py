@@ -3,7 +3,7 @@ import config
 import database as db
 import pymongo
 import statistics
-import numpy
+
 
 def get_history_liquidations_data(period, symbol): #get liquidation data history from coinglass API  
     url = f"https://open-api.coinglass.com/public/v2/liquidation_history?time_type={period}&symbol={symbol}"
@@ -38,7 +38,7 @@ def retreive_last_data_db(collectionName): #get last data from known data in dat
     last_document = collection_name.find_one({}, sort=[("_id", pymongo.DESCENDING)])
     return last_document
 
-def retreive_every_data_percentil(collectionName): #get every liquidation of database and perform percentil calculus on these datas
+def retreive_every_data_percentil(collectionName):
     dbname = db.get_database()
     collectionName = dbname[collectionName]
     last_documents = collectionName.find({})
@@ -66,23 +66,25 @@ if __name__ == "__main__":
     # historicalData = get_history_liquidations_data('M5', 'ETH')   
     # historical_send_to_db(historicalData, 'ETHM5')
     # historicalData = get_history_liquidations_data('M5', 'BTC')   
-    # historical_send_to_db(historicalData, 'BTCM5')        
+    # historical_send_to_db(historicalData, 'BTCM5')    
+    
+    
     
     isBuyThresholdETH = False
     isSellThresholdETH = False
     isBuyThresholdBTC = False
     isSellThresholdBTC = False
     
-    lastDocBTC = retreive_last_data_db('BTCM5')
-    lastDocETH = retreive_last_data_db('ETHM5')
-    dataETH = get_last_liquidation_data('M5', 'ETH')
-    dataBTC = get_last_liquidation_data('M5', 'BTC')
+    lastDocBTC = retreive_last_data_db('BTCH12')
+    lastDocETH = retreive_last_data_db('ETHH12')
+    dataETH = get_last_liquidation_data('H12', 'ETH')
+    dataBTC = get_last_liquidation_data('H12', 'BTC')
     
-    percentilBuyBTC, percentilSellBTC = retreive_every_data_percentil('BTCM5')
+    percentilBuyBTC, percentilSellBTC = retreive_every_data_percentil('BTCH12')
     percentilBuy97BTC = percentilBuyBTC[1] 
     percentilSell97BTC = percentilSellBTC[1] 
     
-    percentilBuyETH, percentilSellETH = retreive_every_data_percentil('ETHM5')
+    percentilBuyETH, percentilSellETH = retreive_every_data_percentil('ETHH12')
     percentilBuy97ETH = percentilBuyETH[1] 
     percentilSell97ETH = percentilSellETH[1] 
     
@@ -110,22 +112,22 @@ if __name__ == "__main__":
     #print(dataETH)
 
     if int(dataETH['createTime']) > int(lastDocETH['createTime']):
-        send_last_to_db(dataETH, 'ETHM5')
+        send_last_to_db(dataETH, 'ETHH12')
     elif int(dataETH['createTime']) == int(lastDocETH['createTime']) and (float(dataETH['buyVolUsd']) != float(lastDocETH['buyVolUsd']) or float(dataETH['sellVolUsd']) != float(lastDocETH['sellVolUsd'])):
-        update_data({"createTime": dataETH['createTime']} , 'ETHM5', {"$set": {"buyVolUsd" : dataETH['buyVolUsd']}})
-        update_data({"createTime": dataETH['createTime']} , 'ETHM5', {"$set": {"sellVolUsd" : dataETH['sellVolUsd']}})
+        update_data({"createTime": dataETH['createTime']} , 'ETHH12', {"$set": {"buyVolUsd" : dataETH['buyVolUsd']}})
+        update_data({"createTime": dataETH['createTime']} , 'ETHH12', {"$set": {"sellVolUsd" : dataETH['sellVolUsd']}})
         if dataETH['buyVolUsd'] > percentilBuy97ETH:
-            update_data({"createTime": dataETH['createTime']} , 'ETHM5', {"$set": {"isBuyThreshold" : True}})
+            update_data({"createTime": dataETH['createTime']} , 'ETHH12', {"$set": {"isBuyThreshold" : True}})
         if dataETH['sellVolUsd'] > percentilSell97ETH:
-            update_data({"createTime": dataETH['createTime']} , 'ETHM5', {"$set": {"isSellThreshold" : True}})
+            update_data({"createTime": dataETH['createTime']} , 'ETHH12', {"$set": {"isSellThreshold" : True}})
         
     
     if int(dataBTC['createTime']) > int(lastDocBTC['createTime']):
-        send_last_to_db(dataBTC, 'BTCM5')
+        send_last_to_db(dataBTC, 'BTCH12')
     elif int(dataBTC['createTime']) == int(lastDocBTC['createTime']) and (float(dataBTC['buyVolUsd']) != float(lastDocBTC['buyVolUsd']) or float(dataBTC['sellVolUsd']) != float(lastDocBTC['sellVolUsd'])):
-        update_data({"createTime": dataBTC['createTime']} , 'BTCM5', {"$set": {"buyVolUsd" : dataBTC['buyVolUsd']}})
-        update_data({"createTime": dataBTC['createTime']} , 'BTCM5', {"$set": {"sellVolUsd" : dataBTC['sellVolUsd']}})
+        update_data({"createTime": dataBTC['createTime']} , 'BTCH12', {"$set": {"buyVolUsd" : dataBTC['buyVolUsd']}})
+        update_data({"createTime": dataBTC['createTime']} , 'BTCH12', {"$set": {"sellVolUsd" : dataBTC['sellVolUsd']}})
         if dataBTC['buyVolUsd'] > percentilBuy97BTC:
-            update_data({"createTime": dataBTC['createTime']} , 'BTCM5', {"$set": {"isBuyThreshold" : True}})
+            update_data({"createTime": dataBTC['createTime']} , 'BTCH12', {"$set": {"isBuyThreshold" : True}})
         if dataBTC['sellVolUsd'] > percentilSell97BTC:
-            update_data({"createTime": dataBTC['createTime']} , 'BTCM5', {"$set": {"isSellThreshold" : True}})
+            update_data({"createTime": dataBTC['createTime']} , 'BTCH12', {"$set": {"isSellThreshold" : True}})
