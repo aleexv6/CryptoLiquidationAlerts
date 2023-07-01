@@ -1,5 +1,5 @@
 # CodeReaderLiquidation
- Alerts when pic liquidation on crypto markets
+ Alert on Discord server when pic liquidation on crypto markets
  
  Package needed : requests, pymongo, numpy, discord-webhook
  
