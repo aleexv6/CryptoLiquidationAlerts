@@ -18,7 +18,6 @@ with collection_name.watch() as stream:
                 #message = f'@here Liquidation des shorts M5 - {buyVolUsd}$ liquidés'
                 embed = DiscordEmbed(title='ETH M5 - Liquidation des shorts', description=f'Liquidation anormale des shorts : **{buyVolUsd}$** liquidé lors des 5 dernières minutes.', color='E11A00')
                 webhook.add_embed(embed)
-                webhook.set_content('@here')
                 response = webhook.execute(remove_embeds=True)
                 
 
@@ -27,7 +26,6 @@ with collection_name.watch() as stream:
                 #message = f'@here Liquidation des longs M5 - {sellVolUsd}$ liquidés'
                 embed = DiscordEmbed(title='ETH M5 - Liquidation des longs', description=f'Liquidation anormale des longs : **{sellVolUsd}$** liquidé lors des 5 dernières minutes.', color='32BD3F')
                 webhook.add_embed(embed)
-                webhook.set_content('@here')
                 response = webhook.execute(remove_embeds=True)
                 
         elif change['operationType'] == 'insert':
@@ -35,13 +33,11 @@ with collection_name.watch() as stream:
                 buyVolUsd = change['fullDocument']['buyVolUsd']
                 embed = DiscordEmbed(title='ETH M5 - Liquidation des shorts', description=f'Liquidation anormale des shorts : **{buyVolUsd}$** liquidé lors des 5 dernières minutes.', color='E11A00')
                 webhook.add_embed(embed)
-                webhook.set_content('@here')
                 response = webhook.execute(remove_embeds=True)
             if change['fullDocument']['isSellThreshold'] == True:
                 sellVolUsd = change['fullDocument']['sellVolUsd']
                 embed = DiscordEmbed(title='ETH M5 - Liquidation des longs', description=f'Liquidation anormale des longs : **{sellVolUsd}$** liquidé lors des 5 dernières minutes.', color='32BD3F')
                 webhook.add_embed(embed)
-                webhook.set_content('@here')
                 response = webhook.execute(remove_embeds=True)
                 
                 

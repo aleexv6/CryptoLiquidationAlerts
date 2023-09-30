@@ -4,6 +4,7 @@ import database as db
 import pymongo
 import statistics
 import numpy
+import time
 
 dbname = db.get_database()
 
@@ -33,7 +34,7 @@ def send_last_to_db(data, symbol): #push last data in database
     
 def retreive_last_data_db(collectionName): #get last data from known data in database #optimized
     collection_name = dbname[collectionName]
-    last_document = collection_name.find_one(sort=[("_id", pymongo.DESCENDING)])  # Supprimer l'argument vide {} dans find_one()
+    last_document = collection_name.find_one(sort=[("_id", pymongo.DESCENDING)])
     return last_document
 
 def retreive_every_data_percentil(collectionName): #get every liquidation of database and perform percentil calculus on these datas #optimized
@@ -43,8 +44,8 @@ def retreive_every_data_percentil(collectionName): #get every liquidation of dat
     buyData = [item['buyVolUsd'] for item in data]
     sellData = [item['sellVolUsd'] for item in data]
     
-    percentilBuy = numpy.quantile(buyData, [0.95, 0.97])
-    percentilSell = numpy.quantile(sellData, [0.95, 0.97])
+    percentilBuy = numpy.quantile(buyData, 0.97)
+    percentilSell = numpy.quantile(sellData, 0.97)
     
     return percentilBuy, percentilSell
       
@@ -59,10 +60,10 @@ def main():
     dataETH = get_last_liquidation_data('M5', 'ETH')
     dataBTC = get_last_liquidation_data('M5', 'BTC')
 
-    isBuyThresholdETH = dataETH['buyVolUsd'] > percentilBuy97ETH[1]
-    isSellThresholdETH = dataETH['sellVolUsd'] > percentilSell97ETH[1]
-    isBuyThresholdBTC = dataBTC['buyVolUsd'] > percentilBuy97BTC[1]
-    isSellThresholdBTC = dataBTC['sellVolUsd'] > percentilSell97BTC[1]
+    isBuyThresholdETH = dataETH['buyVolUsd'] > percentilBuy97ETH
+    isSellThresholdETH = dataETH['sellVolUsd'] > percentilSell97ETH
+    isBuyThresholdBTC = dataBTC['buyVolUsd'] > percentilBuy97BTC
+    isSellThresholdBTC = dataBTC['sellVolUsd'] > percentilSell97BTC
     
     isBuyThresholdETH = bool(isBuyThresholdETH)
     isSellThresholdETH = bool(isSellThresholdETH)
@@ -70,15 +71,15 @@ def main():
     isSellThresholdBTC = bool(isSellThresholdBTC)
 
     percentilDataETH = {
-        "percentilBuy": float(percentilBuy97ETH[1]),
-        "percentilSell": float(percentilSell97ETH[1]),
+        "percentilBuy": float(percentilBuy97ETH),
+        "percentilSell": float(percentilSell97ETH),
         'isBuyThreshold': isBuyThresholdETH,
         'isSellThreshold': isSellThresholdETH
     }
 
     percentilDataBTC = {
-        "percentilBuy": float(percentilBuy97BTC[1]),
-        "percentilSell": float(percentilSell97BTC[1]),
+        "percentilBuy": float(percentilBuy97BTC),
+        "percentilSell": float(percentilSell97BTC),
         'isBuyThreshold': isBuyThresholdBTC,
         'isSellThreshold': isSellThresholdBTC
     }
@@ -88,7 +89,7 @@ def main():
 
     lastDocBTC = retreive_last_data_db('BTCM5')
     lastDocETH = retreive_last_data_db('ETHM5')
-
+    
     if int(dataETH['createTime']) > int(lastDocETH['createTime']):
         send_last_to_db(dataETH, 'ETHM5')
     elif (
@@ -130,5 +131,5 @@ def main():
                 }
             }
         )
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()
