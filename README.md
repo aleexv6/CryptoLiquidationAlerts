@@ -1,4 +1,7 @@
 # CodeReaderLiquidation
+
+(Deprecated since Coinglass API went paid only)
+
  Alert on Discord server when pic liquidation on crypto markets
  
  Package needed : requests, pymongo, numpy, discord-webhook
